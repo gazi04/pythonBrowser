@@ -102,3 +102,5 @@ class URL:
         body = self.request()
         self.show(body)
 
+    def viewSource(self) -> None:
+        print(self.request())
