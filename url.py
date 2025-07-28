@@ -23,6 +23,7 @@ class URL:
     def __prepareHeaders(self, request: str) -> str:
         request += 'Host: {}\r\n'.format(self.host)
         request += 'User-Agent: PyBrowser\r\n'
+        request += 'Connection: keep-alive\r\n'
         request += '\r\n'
 
         return request
@@ -52,6 +53,7 @@ class URL:
             type=socket.SOCK_STREAM,
             proto=socket.IPPROTO_TCP
         )
+        self.socket.connect((self.host, self.port))
 
         if self.scheme == 'https':
             context = ssl.create_default_context()
@@ -61,30 +63,39 @@ class URL:
         print(url)
 
     def request(self) -> str:
-        self.socket.connect((self.host, self.port))
 
         request = 'GET {} HTTP/1.0\r\n'.format(self.path)
         request = self.__prepareHeaders(request)
 
         self.socket.send(request.encode('utf8'))
 
-        response = self.socket.makefile(mode='r', encoding='utf8', newline='\r\n')
-        statusline = response.readline()
-        version, status, explenation = statusline.split(' ', 2)
-
+        response = self.socket.makefile(mode='rb', encoding='utf8', newline='\r\n')
+        
+        # STATUS LINE CONTAINS HTTP VERSION, STATUS AND EXPLENATION
+        statusline = response.readline().decode()
+        
         response_headers = {}
         while True:
-            line = response.readline()
-            if line == '\r\n': break
-            header, value = line.split(':', 1)
+            responseLine = response.readline()
+            if responseLine == b'\r\n':
+                break
+
+            responseLine = responseLine.decode()
+
+            if ':' not in responseLine: 
+                continue
+
+            header, value = responseLine.split(':', 1)
             response_headers[header.casefold()] = value.strip()
+
+
+        content_length = int(response_headers['content-length'])
+        body = response.read(content_length).decode()
 
         assert 'transfer-encoding' not in response_headers
         assert 'content-encoding' not in response_headers
 
-        content = response.read()
-        self.socket.close()
-        return content
+        return body
 
     def show(self, body) -> None:
         cleaned_body = ''
