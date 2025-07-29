@@ -1,5 +1,4 @@
-from url import URL
-
+from src.url import URL
 
 if __name__ == "__main__":
     import sys

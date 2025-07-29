@@ -1,11 +1,8 @@
-from enum import Enum
 import os
 import socket
 import ssl
 
-class Port(Enum):
-    HTTP = 80
-    HTTPS = 443
+from enums.ports import Port
 
 class URL:
     def __init__(self, url='http://localhost:8080/browser/index.html') -> None:
@@ -91,6 +88,7 @@ class URL:
             responseLine = response.readline()
             if responseLine == b'\r\n':
                 break
+        return response.getHtmlContent()
 
             responseLine = responseLine.decode()
 
@@ -108,22 +106,23 @@ class URL:
 
         return body
 
-    def show(self, body: str) -> None:
-        cleaned_body: str = ''
+    def showContentWithoutHtml(self, html_content: str) -> None:
+        """Print the html content of a response without the html tags"""
+        cleaned_content: str = ''
         in_tag: bool = False
-        for char in body:
+        for char in html_content:
             if char == '<':
                 in_tag = True
             elif char == '>':
                 in_tag = False
             elif not in_tag:
-                cleaned_body += char
-        print(cleaned_body.strip())
+                cleaned_content += char
+        print(cleaned_content.strip())
 
     def load(self) -> None:
-        body = self.request()
+        html_content = self.request()
         # print(body)
-        self.show(body)
+        self.showContentWithoutHtml(html_content)
 
     def viewSource(self) -> None:
         print(self.request())
