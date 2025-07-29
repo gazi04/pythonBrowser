@@ -4,9 +4,11 @@ import ssl
 
 from enums.ports import Port
 
+from .httpResponse import HttpResponse
+
+
 class URL:
     def __init__(self, url='http://localhost:8080/browser/index.html') -> None:
-
         self.scheme: str
         self.host: str
         self.port: int
@@ -79,32 +81,9 @@ class URL:
         self.socket.send(request.encode('utf8'))
 
         response = self.socket.makefile(mode='rb', encoding='utf8', newline='\r\n')
+        response = HttpResponse(response)
         
-        # STATUS LINE CONTAINS HTTP VERSION, STATUS AND EXPLENATION
-        statusline = response.readline().decode()
-        
-        response_headers: dict = {}
-        while True:
-            responseLine = response.readline()
-            if responseLine == b'\r\n':
-                break
         return response.getHtmlContent()
-
-            responseLine = responseLine.decode()
-
-            if ':' not in responseLine: 
-                continue
-
-            header, value = responseLine.split(':', 1)
-            response_headers[header.casefold()] = value.strip()
-
-        content_length = int(response_headers['content-length'])
-        body = response.read(content_length).decode()
-
-        assert 'transfer-encoding' not in response_headers
-        assert 'content-encoding' not in response_headers
-
-        return body
 
     def showContentWithoutHtml(self, html_content: str) -> None:
         """Print the html content of a response without the html tags"""
