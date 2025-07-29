@@ -1,15 +1,27 @@
+from enum import Enum
+import os
 import socket
 import ssl
-import os
+
+class Port(Enum):
+    HTTP = 80
+    HTTPS = 443
 
 class URL:
     def __init__(self, url='http://localhost:8080/browser/index.html') -> None:
+
+        self.scheme: str
+        self.host: str
+        self.port: int
+        self.path: str
+        self.socket: socket
         self.__prepareUrl(url)
 
-    def __prepareUrl(self, url) -> None:
+    def __prepareUrl(self, url: str) -> None:
         self.scheme, url = url.split(':', 1)
         assert self.scheme in ['http', 'https', 'file', 'data']
         if self.scheme != 'data': url = url[2:]
+
         if self.scheme == 'file':
             self.__handleFileSchema(url)
             return
@@ -18,6 +30,7 @@ class URL:
             self.__handleDataSchema(url)
             return
 
+        # THE __handleHttpSchema METHOD HANDLES ALSO THE SECURED VERSION
         self.__handleHttpSchema(url)
 
     def __prepareHeaders(self, request: str) -> str:
@@ -29,11 +42,11 @@ class URL:
         return request
 
     def __handleFileSchema(self, path: str):
-        if os.path.exists(path) == False:
+        if os.path.exists(path) is False:
             print(f"File not found.\nPyBrowser can't find the file at {path}")
             return
         
-        directory = os.listdir(path)
+        directory: list = os.listdir(path)
         for item in directory:
             # DOESNT DIPSLAY HIDDEN FOLDERS
             if item[0] == '.': continue
@@ -45,7 +58,7 @@ class URL:
             self.host, port = self.host.split(':', 1)
             self.port = int(port)
         else:
-            self.port = 443 if self.scheme == 'https' else 80
+            self.port = Port.HTTPS.value if self.scheme == 'https' else Port.HTTP.value
         self.path = '/' + url
 
         self.socket = socket.socket(
@@ -63,8 +76,7 @@ class URL:
         print(url)
 
     def request(self) -> str:
-
-        request = 'GET {} HTTP/1.0\r\n'.format(self.path)
+        request: str = 'GET {} HTTP/1.0\r\n'.format(self.path)
         request = self.__prepareHeaders(request)
 
         self.socket.send(request.encode('utf8'))
@@ -74,7 +86,7 @@ class URL:
         # STATUS LINE CONTAINS HTTP VERSION, STATUS AND EXPLENATION
         statusline = response.readline().decode()
         
-        response_headers = {}
+        response_headers: dict = {}
         while True:
             responseLine = response.readline()
             if responseLine == b'\r\n':
@@ -88,7 +100,6 @@ class URL:
             header, value = responseLine.split(':', 1)
             response_headers[header.casefold()] = value.strip()
 
-
         content_length = int(response_headers['content-length'])
         body = response.read(content_length).decode()
 
@@ -97,9 +108,9 @@ class URL:
 
         return body
 
-    def show(self, body) -> None:
-        cleaned_body = ''
-        in_tag = False
+    def show(self, body: str) -> None:
+        cleaned_body: str = ''
+        in_tag: bool = False
         for char in body:
             if char == '<':
                 in_tag = True
@@ -111,7 +122,9 @@ class URL:
 
     def load(self) -> None:
         body = self.request()
+        # print(body)
         self.show(body)
 
     def viewSource(self) -> None:
         print(self.request())
+
