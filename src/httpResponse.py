@@ -16,8 +16,8 @@ class HttpResponse:
 
     def __prepareResponse(self, response: io.BufferedReader) -> None:
         statusline: str = response.readline().decode()
+        self.version, self.status, self.explenation = statusline.split(' ', 2)
 
-        self.version, self.status, self.explenation = statusline.split(' ', 3)
         # split() method returns a string even though the explicit typing in the constructor need to convert it to int
         self.status = int(self.status)
         self.response_headers = self.__readHeader(response)
@@ -50,6 +50,12 @@ class HttpResponse:
         if self.status == HttpStatus.OK.value:
             content_length: int = int(self.response_headers['content-length'])
             self.html_content = self.response.read(content_length).decode()
+
+        elif self.status == HttpStatus.MOVED_PERMANENTLY.value:
+            assert 'location' in self.response_headers
+            from .url import URL
+            url = URL(self.response_headers['location'])
+            url.load()
 
     def getHtmlContent(self) -> str:
         return self.html_content
