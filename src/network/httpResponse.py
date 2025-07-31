@@ -1,5 +1,5 @@
-import io
 import gzip
+import io
 
 from enums.httpStatus import HttpStatus
 
@@ -26,7 +26,10 @@ class HttpResponse:
         if self.status == HttpStatus.OK.value:
             # length has a default value of -1, in case the content length isn't provided read() method will read the response till the end
             length = int(self.headers.get("content-length", -1))
-            if 'content-encoding' in self.headers and self.headers['content-encoding'] == 'gzip':
+            if (
+                "content-encoding" in self.headers
+                and self.headers["content-encoding"] == "gzip"
+            ):
                 self.html_content = gzip.decompress(self.response.read(length)).decode()
             else:
                 self.html_content = self.response.read(length).decode()

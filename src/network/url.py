@@ -32,11 +32,11 @@ class URL:
             return
 
         # handles the case where the given url doens't provide the path
-        if '/' in url: 
+        if "/" in url:
             self.host, url = url.split("/", 1)
-        else: 
+        else:
             self.host = url
-            url = ''
+            url = ""
 
         if ":" in self.host:
             self.host, port = self.host.split(":", 1)
