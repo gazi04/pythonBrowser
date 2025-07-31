@@ -13,6 +13,8 @@ class HttpClient:
         request += "Host: {}\r\n".format(url.host)
         request += "User-Agent: PyBrowser\r\n"
         request += "Connection: keep-alive\r\n"
+        request += "Cache-Control: max-age=300, must-revalidate\r\n"
+        request += "Accept-Encoding: gzip\r\n"
         request += "\r\n"
 
         return request
@@ -24,7 +26,7 @@ class HttpClient:
 
         directory: list = os.listdir(path)
         for item in directory:
-            # DOESNT DIPSLAY HIDDEN FOLDERS
+            # doesn't dipslay hidden folders
             if item[0] == ".":
                 continue
             print(item)
