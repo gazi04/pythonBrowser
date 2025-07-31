@@ -31,7 +31,13 @@ class URL:
             self.is_data = True
             return
 
-        self.host, url = url.split("/", 1)
+        # handles the case where the given url doens't provide the path
+        if '/' in url: 
+            self.host, url = url.split("/", 1)
+        else: 
+            self.host = url
+            url = ''
+
         if ":" in self.host:
             self.host, port = self.host.split(":", 1)
             self.port = int(port)
