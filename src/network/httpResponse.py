@@ -29,7 +29,6 @@ class HttpResponse:
             if 'content-encoding' in self.headers and self.headers['content-encoding'] == 'gzip':
                 self.html_content = gzip.decompress(self.response.read(length)).decode()
             else:
-                self.response.read()
                 self.html_content = self.response.read(length).decode()
 
     def __readHeader(self) -> dict[str, str]:
