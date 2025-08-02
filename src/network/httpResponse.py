@@ -50,3 +50,16 @@ class HttpResponse:
             headers[header.casefold()] = value.strip()
 
         return headers
+
+    def showContentWithoutHtml(self) -> str:
+        """Print the html content of a response without the html tags"""
+        cleaned_content: str = ""
+        in_tag: bool = False
+        for char in self.html_content:
+            if char == "<":
+                in_tag = True
+            elif char == ">":
+                in_tag = False
+            elif not in_tag:
+                cleaned_content += char
+        return cleaned_content.strip()
