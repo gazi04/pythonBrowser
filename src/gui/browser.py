@@ -91,11 +91,17 @@ class Browser:
     def onResize(self, event) -> None:
         self.__render()
 
-    def scrollDown(self, event) -> None:
-        self.scroll += SCROLL_STEP
-        self.__render()
+    def __scrollDown(self, event) -> None:
+        self.__setScrollPosition(SCROLL_STEP)
 
-    def scrollUp(self, event) -> None:
-        if 0 >= self.scroll: self.scroll = 0
-        else: self.scroll -= SCROLL_STEP
+    def __scrollUp(self, event) -> None:
+        self.__setScrollPosition(-SCROLL_STEP)
+
+    def __setScrollPosition(self, delta: int) -> None:
+        """Helper method to adjust the scroll position, clamping it at boundaries."""
+        new_scroll = self.scroll + delta
+        canvas_height = self.canvas.winfo_height()
+        max_scroll = max(0, self.documentHeight - canvas_height)
+
+        self.scroll = max(0, min(new_scroll, max_scroll))
         self.__render()
