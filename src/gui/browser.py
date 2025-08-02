@@ -9,11 +9,16 @@ class Browser:
         self.window = Tk()
         self.window.title(TITLE)
 
-        self.canvas = Canvas(self.window)
-        self.canvas.pack(expand=True, fill="both")
+        frame = Frame(self.window)
+        frame.pack(expand=True, fill=BOTH)
 
-        self.scrollbar = Scrollbar(self.canvas)
+        self.scrollbar = Scrollbar(frame)
         self.scrollbar.pack(side=RIGHT, fill=Y)
+
+        self.canvas = Canvas(frame, yscrollcommand=self.scrollbar.set)
+        self.canvas.pack(expand=True, fill=BOTH)
+
+        self.scrollbar.config(command=self.canvas.yview)
 
         self.scroll: int = 0
         self.content: str
@@ -42,7 +47,7 @@ class Browser:
         self.__updateScrollbar(canvasHeight)
 
     def __layout(self) -> list:
-        display_list = []
+        displayList = []
 
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
@@ -50,20 +55,23 @@ class Browser:
         cursor_x, cursor_y = HSTEP, VSTEP
 
         for character in self.content:
-            display_list.append((cursor_x, cursor_y, character))
+            displayList.append((cursor_x, cursor_y, character))
             cursor_x += HSTEP
             if cursor_x >= width - HSTEP:
                 cursor_y += VSTEP
                 cursor_x = HSTEP
 
         self.documentHeight = cursor_y + VSTEP
-        return display_list
+        return displayList
 
     def __updateScrollbar(self, canvasHeight: int) -> None:
         if self.documentHeight <= canvasHeight: 
             self.scrollbar.pack_forget()                # If document fits on screen remove scrollbar
         else:
             self.scrollbar.pack(side=RIGHT, fill=Y)
+
+        self.scrollbar.config(command=self.canvas.yview)
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def load(self, content: str) -> None:
         self.content = content
