@@ -17,8 +17,14 @@ class URL:
         self.__prepareUrl(url)
 
     def __prepareUrl(self, url: str) -> None:
+        if url == "about:blank":
+            self.scheme = "about"
+            self.__handleAboutSchema()
+            return
+
         self.scheme, url = url.split(":", 1)
         assert self.scheme in ["http", "https", "file", "data"]
+
         if self.scheme != "data":
             url = url[2:]
 
@@ -44,6 +50,10 @@ class URL:
         else:
             self.port = Port.HTTPS.value if self.scheme == "https" else Port.HTTP.value
         self.path = "/" + url
+
+    def __handleAboutSchema(self):
+        # TODO- NEED TO HANDLE ABOUT SCHEMA
+        pass
 
     def request(self) -> str:
         request: str = "GET {} HTTP/1.0\r\n".format(self.path)
