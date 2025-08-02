@@ -9,6 +9,14 @@ class Browser:
         self.window = Tk()
         self.window.title(TITLE)
 
+        self.__setupWidgets()
+        self.__setupKeyBindings()
+
+        self.scroll: int = 0
+        self.content: str
+        self.documentHeight: int
+
+    def __setupWidgets(self) -> None:
         frame = Frame(self.window)
         frame.pack(expand=True, fill=BOTH)
 
@@ -20,16 +28,13 @@ class Browser:
 
         self.scrollbar.config(command=self.canvas.yview)
 
-        self.scroll: int = 0
-        self.content: str
-        self.documentHeight: int
-
+    def __setupKeyBindings(self) -> None:
         self.canvas.bind("<Configure>", self.onResize)
-        self.window.bind("<Button-5>", self.scrollDown)      # <Button-5> for using the mouse wheel in linux
-        self.window.bind("<Button-4>", self.scrollUp)        # <Button-4> for using the mouse wheel in linux
-        self.window.bind("<MouseWheel>", self.onMouseWheel)  # <MouseWheel> only works on Windows/MacOS
-        self.window.bind("<Down>", self.scrollDown)
-        self.window.bind("<Up>", self.scrollUp)
+        self.window.bind("<Button-5>", self.__scrollDown)      # <Button-5> for using the mouse wheel in linux
+        self.window.bind("<Button-4>", self.__scrollUp)        # <Button-4> for using the mouse wheel in linux
+        self.window.bind("<MouseWheel>", self.onMouseWheel)    # <MouseWheel> only works on Windows/MacOS
+        self.window.bind("<Down>", self.__scrollDown)
+        self.window.bind("<Up>", self.__scrollUp)
 
     def __render(self) -> None:
         self.canvas.delete("all")
