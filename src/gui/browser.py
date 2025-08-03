@@ -1,8 +1,9 @@
 from tkinter import *
 
-TITLE = 'PyBrowser'
+TITLE = "PyBrowser"
 HSTEP, VSTEP = 13, 18
 SCROLL_STEP = 100
+
 
 class Browser:
     def __init__(self) -> None:
@@ -31,23 +32,31 @@ class Browser:
 
     def __setupKeyBindings(self) -> None:
         self.canvas.bind("<Configure>", self.onResize)
-        self.window.bind("<Button-5>", self.__scrollDown)      # <Button-5> for using the mouse wheel in linux
-        self.window.bind("<Button-4>", self.__scrollUp)        # <Button-4> for using the mouse wheel in linux
-        self.window.bind("<MouseWheel>", self.onMouseWheel)    # <MouseWheel> only works on Windows/MacOS
+        self.window.bind(
+            "<Button-5>", self.__scrollDown
+        )  # <Button-5> for using the mouse wheel in linux
+        self.window.bind(
+            "<Button-4>", self.__scrollUp
+        )  # <Button-4> for using the mouse wheel in linux
+        self.window.bind(
+            "<MouseWheel>", self.onMouseWheel
+        )  # <MouseWheel> only works on Windows/MacOS
         self.window.bind("<Down>", self.__scrollDown)
         self.window.bind("<Up>", self.__scrollUp)
 
     def __render(self) -> None:
         self.canvas.delete("all")
 
-        if not self.document: 
+        if not self.document:
             return
 
         canvasHeight = self.canvas.winfo_height()
 
         for x, y, paragraph in self.document:
-            if y > self.scroll + canvasHeight: continue
-            if y + VSTEP < self.scroll: continue
+            if y > self.scroll + canvasHeight:
+                continue
+            if y + VSTEP < self.scroll:
+                continue
 
             # y = y + (VSTEP * 1.5)
             self.canvas.create_text(x, y - self.scroll, text=paragraph)
@@ -71,8 +80,8 @@ class Browser:
         self.document = displayList
 
     def __updateScrollbar(self, canvasHeight: int) -> None:
-        if self.documentHeight <= canvasHeight: 
-            self.scrollbar.pack_forget()                # If document fits on screen remove scrollbar
+        if self.documentHeight <= canvasHeight:
+            self.scrollbar.pack_forget()  # If document fits on screen remove scrollbar
         else:
             self.scrollbar.pack(side=RIGHT, fill=Y)
 
