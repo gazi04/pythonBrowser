@@ -14,6 +14,7 @@ class Browser:
 
         self.scroll: int = 0
         self.content: str
+        self.document: list
         self.documentHeight: int
 
     def __setupWidgets(self) -> None:
@@ -39,10 +40,12 @@ class Browser:
     def __render(self) -> None:
         self.canvas.delete("all")
 
-        document = self.__layout()
+        if not self.document: 
+            return
+
         canvasHeight = self.canvas.winfo_height()
 
-        for x, y, paragraph in document:
+        for x, y, paragraph in self.document:
             if y > self.scroll + canvasHeight: continue
             if y + VSTEP < self.scroll: continue
 
@@ -51,12 +54,10 @@ class Browser:
 
         self.__updateScrollbar(canvasHeight)
 
-    def __layout(self) -> list:
+    def __layout(self) -> None:
         displayList = []
 
         width = self.canvas.winfo_width()
-        height = self.canvas.winfo_height()
-
         cursor_x, cursor_y = HSTEP, VSTEP
 
         for character in self.content:
@@ -67,7 +68,7 @@ class Browser:
                 cursor_x = HSTEP
 
         self.documentHeight = cursor_y + VSTEP
-        return displayList
+        self.document = displayList
 
     def __updateScrollbar(self, canvasHeight: int) -> None:
         if self.documentHeight <= canvasHeight: 
@@ -80,6 +81,7 @@ class Browser:
 
     def load(self, content: str) -> None:
         self.content = content
+        self.__layout()
         self.__render()
         self.window.mainloop()
 
@@ -89,6 +91,7 @@ class Browser:
         self.__render()
 
     def onResize(self, event) -> None:
+        self.__layout()
         self.__render()
 
     def __scrollDown(self, event) -> None:
