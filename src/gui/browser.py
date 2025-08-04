@@ -1,4 +1,7 @@
 from tkinter import *
+from tkinter.font import Font
+
+from src.render.text import Text
 
 TITLE = "PyBrowser"
 HSTEP, VSTEP = 13, 18
@@ -14,7 +17,7 @@ class Browser:
         self.__setupKeyBindings()
 
         self.scroll: int = 0
-        self.content: str
+        self.tokens: str
         self.document: list
         self.documentHeight: int
 
@@ -52,14 +55,13 @@ class Browser:
 
         canvasHeight = self.canvas.winfo_height()
 
-        for x, y, paragraph in self.document:
+        for x, y, paragraph, font in self.document:
             if y > self.scroll + canvasHeight:
                 continue
             if y + VSTEP < self.scroll:
                 continue
 
-            # y = y + (VSTEP * 1.5)
-            self.canvas.create_text(x, y - self.scroll, text=paragraph)
+            self.canvas.create_text(x, y - self.scroll, text=paragraph, anchor="nw", font=font)
 
         self.__updateScrollbar(canvasHeight)
 
@@ -67,16 +69,40 @@ class Browser:
         displayList = []
 
         width = self.canvas.winfo_width()
+        weight: str = "normal"
+        style: str = "roman"
+
+        lineHeight = Font().metrics("linespace") * 1.25
+        spaceWidth = Font().measure(" ")
+
         cursor_x, cursor_y = HSTEP, VSTEP
 
-        for character in self.content:
-            displayList.append((cursor_x, cursor_y, character))
-            cursor_x += HSTEP
-            if cursor_x >= width - HSTEP:
-                cursor_y += VSTEP
-                cursor_x = HSTEP
+        for token in self.tokens:
+            if isinstance(token, Text):
+                for word in token.text.split():
+                    font = Font(
+                        size=16,
+                        weight=weight,
+                        slant=style,
+                    )
+                    wordWidth = font.measure(word)
 
-        self.documentHeight = cursor_y + VSTEP
+                    if cursor_x + wordWidth > width - HSTEP:
+                        cursor_y += lineHeight
+                        cursor_x = HSTEP
+
+                    displayList.append((cursor_x, cursor_y, word, font))
+                    cursor_x += wordWidth + spaceWidth
+            elif token.tag == "i":
+                style = "italic"
+            elif token.tag == "/i":
+                style = "roman"
+            elif token.tag == "b":
+                weight = "bold"
+            elif token.tag == "/b":
+                weight = "normal"
+
+        self.documentHeight = cursor_y + lineHeight
         self.document = displayList
 
     def __updateScrollbar(self, canvasHeight: int) -> None:
@@ -88,8 +114,8 @@ class Browser:
         self.scrollbar.config(command=self.canvas.yview)
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-    def load(self, content: str) -> None:
-        self.content = content
+    def load(self, tokens: str) -> None:
+        self.tokens = tokens
         self.__layout()
         self.__render()
         self.window.mainloop()
