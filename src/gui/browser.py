@@ -1,7 +1,8 @@
 from tkinter import *
 from tkinter.font import Font
 
-from src.render.text import Text
+from src.render.layout import Layout
+from src.render.render import Render
 
 TITLE = "PyBrowser"
 HSTEP, VSTEP = 13, 18
@@ -16,10 +17,13 @@ class Browser:
         self.__setupWidgets()
         self.__setupKeyBindings()
 
+        self.layout: Layout
+        self.render: Render
+
         self.scroll: int = 0
         self.tokens: str
         self.document: list
-        self.documentHeight: int
+        self.layoutHeight: int
 
     def __setupWidgets(self) -> None:
         frame = Frame(self.window)
@@ -47,87 +51,32 @@ class Browser:
         self.window.bind("<Down>", self.__scrollDown)
         self.window.bind("<Up>", self.__scrollUp)
 
-    def __render(self) -> None:
-        self.canvas.delete("all")
-
-        if not self.document:
-            return
-
-        canvasHeight = self.canvas.winfo_height()
-
-        for x, y, paragraph, font in self.document:
-            if y > self.scroll + canvasHeight:
-                continue
-            if y + VSTEP < self.scroll:
-                continue
-
-            self.canvas.create_text(x, y - self.scroll, text=paragraph, anchor="nw", font=font)
-
-        self.__updateScrollbar(canvasHeight)
-
-    def __layout(self) -> None:
-        displayList = []
-
-        width = self.canvas.winfo_width()
-        weight: str = "normal"
-        style: str = "roman"
-
-        lineHeight = Font().metrics("linespace") * 1.25
-        spaceWidth = Font().measure(" ")
-
-        cursor_x, cursor_y = HSTEP, VSTEP
-
-        for token in self.tokens:
-            if isinstance(token, Text):
-                for word in token.text.split():
-                    font = Font(
-                        size=16,
-                        weight=weight,
-                        slant=style,
-                    )
-                    wordWidth = font.measure(word)
-
-                    if cursor_x + wordWidth > width - HSTEP:
-                        cursor_y += lineHeight
-                        cursor_x = HSTEP
-
-                    displayList.append((cursor_x, cursor_y, word, font))
-                    cursor_x += wordWidth + spaceWidth
-            elif token.tag == "i":
-                style = "italic"
-            elif token.tag == "/i":
-                style = "roman"
-            elif token.tag == "b":
-                weight = "bold"
-            elif token.tag == "/b":
-                weight = "normal"
-
-        self.documentHeight = cursor_y + lineHeight
-        self.document = displayList
-
-    def __updateScrollbar(self, canvasHeight: int) -> None:
-        if self.documentHeight <= canvasHeight:
-            self.scrollbar.pack_forget()  # If document fits on screen remove scrollbar
-        else:
-            self.scrollbar.pack(side=RIGHT, fill=Y)
-
-        self.scrollbar.config(command=self.canvas.yview)
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-
     def load(self, tokens: str) -> None:
         self.tokens = tokens
-        self.__layout()
-        self.__render()
+        self.window.update()
+        self.layout = Layout(tokens, self.canvas)
+        self.render = Render(
+            self.canvas, self.scrollbar, self.layout.displayList, self.layout.height
+        )
+        self.render.draw()
         self.window.mainloop()
 
     def onMouseWheel(self, event) -> None:
         direction = -1 if event.delta < 0 else 1
         self.scroll += direction * SCROLL_STEP
-        self.__render()
+        self.render.draw()
 
     def onResize(self, event) -> None:
-        self.__layout()
-        self.__render()
+        if not self.tokens:
+            return
+
+        # self.window.update()
+        self.layout = Layout(self.tokens, self.canvas)
+
+        if hasattr(self, "render"):
+            print("re-render")
+            self.render.layout = self.layout
+            self.render.draw()
 
     def __scrollDown(self, event) -> None:
         self.__setScrollPosition(SCROLL_STEP)
@@ -139,7 +88,7 @@ class Browser:
         """Helper method to adjust the scroll position, clamping it at boundaries."""
         new_scroll = self.scroll + delta
         canvas_height = self.canvas.winfo_height()
-        max_scroll = max(0, self.documentHeight - canvas_height)
+        max_scroll = max(0, self.layout.height - canvas_height)
 
         self.scroll = max(0, min(new_scroll, max_scroll))
-        self.__render()
+        self.render.draw()
