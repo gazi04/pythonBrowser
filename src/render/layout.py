@@ -10,7 +10,8 @@ class Layout:
     def __init__(self, tokens: str, canvas: Canvas) -> None:
         self.tokens = tokens
         self.canvas = canvas
-        self.displayList: tuple[int, int, str, Font] = []
+
+        self.renderList: tuple[int, int, str, Font] = []
         self.height: int
 
         self.cursor_x: int = HORIZONTAL_STEP
@@ -51,7 +52,7 @@ class Layout:
                 self.cursor_y += self.lineHeight
                 self.cursor_x = HORIZONTAL_STEP
 
-            self.displayList.append((self.cursor_x, self.cursor_y, word, font))
+            self.renderList.append((self.cursor_x, self.cursor_y, word, font))
             self.cursor_x += wordWidth + self.spaceWidth
 
     def __getFont(self) -> Font:

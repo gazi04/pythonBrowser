@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter.font import Font
 
-from src.render.layout import Layout
 from src.render.render import Render
 
 TITLE = "PyBrowser"
@@ -17,12 +16,7 @@ class Browser:
         self.__setupWidgets()
         self.__setupKeyBindings()
 
-        self.layout: Layout
         self.render: Render
-
-        self.scroll: int = 0
-        self.tokens: str
-        self.document: list
 
     def __setupWidgets(self) -> None:
         frame = Frame(self.window)
@@ -51,11 +45,11 @@ class Browser:
         self.window.bind("<Up>", self.__scrollUp)
 
     def load(self, tokens: str) -> None:
-        self.tokens = tokens
         self.window.update()
-        self.layout = Layout(tokens, self.canvas)
         self.render = Render(
-            self.canvas, self.scrollbar, self.layout.displayList, self.layout.height
+            self.canvas,
+            self.scrollbar,
+            tokens
         )
         self.render.draw()
         self.window.mainloop()
@@ -66,16 +60,12 @@ class Browser:
         self.render.draw()
 
     def onResize(self, event) -> None:
-        if not self.tokens:
-            return
-
-        # self.window.update()
-        self.layout = Layout(self.tokens, self.canvas)
-
-        if hasattr(self, "render"):
-            self.render.layout = self.layout
-            self.render.draw()
-
+        # The 'render' object is initialized in the `load()` method, not the constructor.
+        # However, the `onResize` function can be triggered during initialization before the `load()` method is called.
+        # The 'if' condition prevents the program from crashing by checking if the 'render' object exists before attempting to resize it.      
+        if hasattr(self, 'render'):
+            self.render.resize()
+        
     def __scrollDown(self, event) -> None:
         self.render.setScrollPosition(SCROLL_STEP)
 

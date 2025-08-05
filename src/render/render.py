@@ -1,33 +1,35 @@
-from tkinter import *
+from tkinter import Canvas, Scrollbar
+import tkinter as tk
 
 HSTEP, VSTEP = 13, 18
 SCROLL_STEP = 100
+from src.render.layout import Layout
 
 
 class Render:
-    def __init__(self, canvas, scrollbar, tokens, layoutHeight) -> None:
+    def __init__(self, canvas, scrollbar, tokens) -> None:
         self.canvas: Canvas = canvas
         self.scrollbar: Scrollbar = scrollbar
-        self.tokens: list = tokens
+        self.tokens: str = tokens
+        self.layout: Layout = Layout(self.tokens, self.canvas)
         self.scroll: int = 0
-        self.layoutHeight: int = layoutHeight
 
     def draw(self) -> None:
         self.canvas.delete("all")
 
-        if not self.tokens:
+        if not self.layout.renderList:
             return
 
         canvasHeight = self.canvas.winfo_height()
 
-        for x, y, token, font in self.tokens:
+        for x, y, word, font in self.layout.renderList:
             if y > self.scroll + canvasHeight:
                 continue
-            if y + VSTEP < self.scroll:
+            if y + VERTICAL_STEP < self.scroll:
                 continue
 
             self.canvas.create_text(
-                x, y - self.scroll, text=token, anchor="nw", font=font
+                x, y - self.scroll, text=word, anchor="nw", font=font
             )
 
         self.__updateScrollbar(canvasHeight)
@@ -36,16 +38,22 @@ class Render:
         """Helper method to adjust the scroll position, clamping it at boundaries."""
         new_scroll = self.scroll + delta
         canvas_height = self.canvas.winfo_height()
-        max_scroll = max(0, self.layoutHeight - canvas_height)
+        max_scroll = max(0, self.layout.height - canvas_height)
 
         self.scroll = max(0, min(new_scroll, max_scroll))
         self.draw()
 
+    def resize(self):
+        if not self.tokens:
+            return
+        self.layout = Layout(self.tokens, self.canvas)
+        self.draw()
+
     def __updateScrollbar(self, canvasHeight: int) -> None:
-        if self.layoutHeight <= canvasHeight:
+        if self.layout.height <= canvasHeight:
             self.scrollbar.pack_forget()  # If document fits on screen remove scrollbar
         else:
-            self.scrollbar.pack(side=RIGHT, fill=Y)
+            self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         self.scrollbar.config(command=self.canvas.yview)
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
