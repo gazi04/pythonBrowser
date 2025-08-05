@@ -10,67 +10,58 @@ class Layout:
     def __init__(self, tokens: str, canvas: Canvas) -> None:
         self.tokens = tokens
         self.canvas = canvas
-        self.displayList = []
+        self.displayList: tuple[int, int, str, Font] = []
         self.height: int
+
+        self.cursor_x: int = HORIZONTAL_STEP
+        self.cursor_y: int = VERTICAL_STEP
+
+        self.fontCache: dict = {}
+        self.fontSize: int = 16
+        self.fontWeight: str = "normal"
+        self.fontStyle: str = "roman"
+
+        self.lineHeight: int = self.__getFont().metrics("linespace") * 1.25
+        self.spaceWidth: int = self.__getFont().measure(" ")
+
         self.__prepareLayout()
 
     def __prepareLayout(self) -> None:
-        canvasWidth = self.canvas.winfo_width()
-        weight: str = "normal"
-        style: str = "roman"
-
-        lineHeight = Font().metrics("linespace") * 1.25
-        spaceWidth = Font().measure(" ")
-
-        cursor_x, cursor_y = HORIZONTAL_STEP, VERTICAL_STEP
-
         for token in self.tokens:
             if isinstance(token, Text):
-                cursor_x, cursor_y = self.__prepareLine(
-                    token,
-                    cursor_x,
-                    cursor_y,
-                    weight,
-                    style,
-                    lineHeight,
-                    spaceWidth,
-                    canvasWidth,
-                )
+                self.__prepareLine(token)
             elif token.tag == "i":
-                style = "italic"
+                self.fontStyle = "italic"
             elif token.tag == "/i":
-                style = "roman"
+                self.fontStyle = "roman"
             elif token.tag == "b":
-                weight = "bold"
+                self.fontWeight = "bold"
             elif token.tag == "/b":
-                weight = "normal"
+                self.fontWeight = "normal"
 
-        self.height = cursor_y + lineHeight
+        self.height = self.cursor_y + self.lineHeight
 
-    def __prepareLine(
-        self,
-        token,
-        cursor_x,
-        cursor_y,
-        weight,
-        style,
-        lineHeight,
-        spaceWidth,
-        canvasWidth,
-    ) -> tuple[int, int]:
+    def __prepareLine(self, token) -> None:
         for word in token.text.split():
-            font = Font(
-                size=16,
-                weight=weight,
-                slant=style,
-            )
+            font = self.__getFont()
+
             wordWidth = font.measure(word)
 
-            if cursor_x + wordWidth > canvasWidth - HORIZONTAL_STEP:
-                cursor_y += lineHeight
-                cursor_x = HORIZONTAL_STEP
+            if self.cursor_x + wordWidth > self.canvas.winfo_width() - HORIZONTAL_STEP:
+                self.cursor_y += self.lineHeight
+                self.cursor_x = HORIZONTAL_STEP
 
-            self.displayList.append((cursor_x, cursor_y, word, font))
-            cursor_x += wordWidth + spaceWidth
+            self.displayList.append((self.cursor_x, self.cursor_y, word, font))
+            self.cursor_x += wordWidth + self.spaceWidth
 
-        return cursor_x, cursor_y
+    def __getFont(self) -> Font:
+        key = (self.fontSize, self.fontWeight, self.fontStyle)
+
+        if key not in self.fontCache:
+            self.fontCache[key] = Font(
+                size=self.fontSize,
+                weight=self.fontWeight,
+                slant=self.fontStyle,
+            )
+
+        return self.fontCache[key]
