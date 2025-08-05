@@ -2,8 +2,7 @@ from tkinter import Canvas
 from tkinter.font import Font
 
 from src.render.text import Text
-
-HORIZONTAL_STEP, VERTICAL_STEP = 13, 18
+from src.config import HORIZONTAL_STEP, VERTICAL_STEP
 
 
 class Layout:

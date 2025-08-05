@@ -1,12 +1,8 @@
-from tkinter import *
-from tkinter.font import Font
+from tkinter import Tk, Frame, Canvas, Scrollbar
+import tkinter as tk
 
 from src.render.render import Render
-
-TITLE = "PyBrowser"
-HSTEP, VSTEP = 13, 18
-SCROLL_STEP = 100
-
+from src.config import TITLE, SCROLL_STEP
 
 class Browser:
     def __init__(self) -> None:
@@ -20,13 +16,13 @@ class Browser:
 
     def __setupWidgets(self) -> None:
         frame = Frame(self.window)
-        frame.pack(expand=True, fill=BOTH)
+        frame.pack(expand=True, fill=tk.BOTH)
 
         self.scrollbar = Scrollbar(frame)
-        self.scrollbar.pack(side=RIGHT, fill=Y)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         self.canvas = Canvas(frame, yscrollcommand=self.scrollbar.set)
-        self.canvas.pack(expand=True, fill=BOTH)
+        self.canvas.pack(expand=True, fill=tk.BOTH)
 
         self.scrollbar.config(command=self.canvas.yview)
 

@@ -1,9 +1,8 @@
 from tkinter import Canvas, Scrollbar
 import tkinter as tk
 
-HSTEP, VSTEP = 13, 18
-SCROLL_STEP = 100
 from src.render.layout import Layout
+from src.config import VERTICAL_STEP
 
 
 class Render:
