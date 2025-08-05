@@ -32,6 +32,15 @@ class Render:
 
         self.__updateScrollbar(canvasHeight)
 
+    def setScrollPosition(self, delta: int) -> None:
+        """Helper method to adjust the scroll position, clamping it at boundaries."""
+        new_scroll = self.scroll + delta
+        canvas_height = self.canvas.winfo_height()
+        max_scroll = max(0, self.layoutHeight - canvas_height)
+
+        self.scroll = max(0, min(new_scroll, max_scroll))
+        self.draw()
+
     def __updateScrollbar(self, canvasHeight: int) -> None:
         if self.layoutHeight <= canvasHeight:
             self.scrollbar.pack_forget()  # If document fits on screen remove scrollbar

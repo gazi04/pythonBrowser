@@ -23,7 +23,6 @@ class Browser:
         self.scroll: int = 0
         self.tokens: str
         self.document: list
-        self.layoutHeight: int
 
     def __setupWidgets(self) -> None:
         frame = Frame(self.window)
@@ -63,7 +62,7 @@ class Browser:
 
     def onMouseWheel(self, event) -> None:
         direction = -1 if event.delta < 0 else 1
-        self.scroll += direction * SCROLL_STEP
+        self.render.scroll += direction * SCROLL_STEP
         self.render.draw()
 
     def onResize(self, event) -> None:
@@ -74,21 +73,11 @@ class Browser:
         self.layout = Layout(self.tokens, self.canvas)
 
         if hasattr(self, "render"):
-            print("re-render")
             self.render.layout = self.layout
             self.render.draw()
 
     def __scrollDown(self, event) -> None:
-        self.__setScrollPosition(SCROLL_STEP)
+        self.render.setScrollPosition(SCROLL_STEP)
 
     def __scrollUp(self, event) -> None:
-        self.__setScrollPosition(-SCROLL_STEP)
-
-    def __setScrollPosition(self, delta: int) -> None:
-        """Helper method to adjust the scroll position, clamping it at boundaries."""
-        new_scroll = self.scroll + delta
-        canvas_height = self.canvas.winfo_height()
-        max_scroll = max(0, self.layout.height - canvas_height)
-
-        self.scroll = max(0, min(new_scroll, max_scroll))
-        self.render.draw()
+        self.render.setScrollPosition(-SCROLL_STEP)
