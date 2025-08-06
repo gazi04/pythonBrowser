@@ -24,14 +24,16 @@ class Layout:
         self.line_height: int = self.__getFont().metrics("linespace") * 1.25
         self.space_width: int = self.__getFont().measure(" ")
 
+        self.line_buffer: list[int, str, Font] = []
+
         self.__prepareLayout()
 
     def __prepareLayout(self) -> None:
         for token in self.tokens:
             if isinstance(token, Text):
                 self.__prepareLine(token)
-            elif token.tag == "br":
-                self.cursor_y += self.line_height * 1.25
+            elif token.tag == "br" or token.tag == "/br":
+                self.__flush()
                 self.cursor_x = HORIZONTAL_STEP
             elif token.tag == "i":
                 self.font_style = "italic"
@@ -59,10 +61,10 @@ class Layout:
             word_width = font.measure(word)
 
             if self.cursor_x + word_width > self.canvas.winfo_width() - HORIZONTAL_STEP:
-                self.cursor_y += self.line_height
+                self.__flush()
                 self.cursor_x = HORIZONTAL_STEP
 
-            self.render_list.append((self.cursor_x, self.cursor_y, word, font))
+            self.line_buffer.append((self.cursor_x, word, font))
             self.cursor_x += word_width + self.space_width
 
     def __getFont(self) -> Font:
@@ -76,3 +78,19 @@ class Layout:
             )
 
         return self.font_cache[key]
+
+    def __flush(self) -> None:
+        if not self.line_buffer: return
+        metrics = [font.metrics() for x, word, font in self.line_buffer]
+        max_ascent = max([metric["ascent"] for metric in metrics])
+
+        baseline = self.cursor_y + 1.25 * max_ascent
+
+        for x, word, font in self.line_buffer:
+            y = baseline - font.metrics("ascent")
+            self.render_list.append((x, y, word, font))
+
+        max_descent = max([metric["descent"] for metric in metrics])
+        self.cursor_y = baseline + 1.25 * max_descent
+        self.cursor_x = HORIZONTAL_STEP
+        self.line_buffer = []
