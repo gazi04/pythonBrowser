@@ -17,7 +17,7 @@ class Layout:
         self.cursor_y: int = VERTICAL_STEP
 
         self.font_cache: dict = {}
-        self.font_size: int = 16
+        self.font_size: int = 12
         self.font_weight: str = "normal"
         self.font_style: str = "roman"
 
@@ -30,6 +30,9 @@ class Layout:
         for token in self.tokens:
             if isinstance(token, Text):
                 self.__prepareLine(token)
+            elif token.tag == "br":
+                self.cursor_y += self.line_height * 1.25
+                self.cursor_x = HORIZONTAL_STEP
             elif token.tag == "i":
                 self.font_style = "italic"
             elif token.tag == "/i":
@@ -38,6 +41,14 @@ class Layout:
                 self.font_weight = "bold"
             elif token.tag == "/b":
                 self.font_weight = "normal"
+            elif token.tag == "small":
+                self.font_size -= 2
+            elif token.tag == "/small":
+                self.font_size += 2
+            elif token.tag == "big":
+                self.font_size += 4
+            elif token.tag == "/big":
+                self.font_size -= 4
 
         self.height = self.cursor_y + self.line_height
 
