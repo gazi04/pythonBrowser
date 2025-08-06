@@ -39,16 +39,16 @@ class HttpResponse:
     def __readHeader(self) -> dict[str, str]:
         headers: dict[str, str] = {}
         while True:
-            responseLine = self.response.readline()
-            if responseLine == b"\r\n":
+            response_line = self.response.readline()
+            if response_line == b"\r\n":
                 break
 
-            responseLine = responseLine.decode()
+            response_line = response_line.decode()
 
-            if ":" not in responseLine:
+            if ":" not in response_line:
                 continue
 
-            header, value = responseLine.split(":", 1)
+            header, value = response_line.split(":", 1)
             headers[header.casefold()] = value.strip()
 
         return headers
@@ -61,7 +61,8 @@ class HttpResponse:
         for character in self.html_content:
             if character == "<":
                 inTag = True
-                if buffer: out.append(Text(buffer))
+                if buffer:
+                    out.append(Text(buffer))
                 buffer = ""
             elif character == ">":
                 inTag = False

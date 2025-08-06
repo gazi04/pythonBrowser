@@ -10,19 +10,19 @@ class Layout:
         self.tokens = tokens
         self.canvas = canvas
 
-        self.renderList: tuple[int, int, str, Font] = []
+        self.render_list: tuple[int, int, str, Font] = []
         self.height: int
 
         self.cursor_x: int = HORIZONTAL_STEP
         self.cursor_y: int = VERTICAL_STEP
 
-        self.fontCache: dict = {}
-        self.fontSize: int = 16
-        self.fontWeight: str = "normal"
-        self.fontStyle: str = "roman"
+        self.font_cache: dict = {}
+        self.font_size: int = 16
+        self.font_weight: str = "normal"
+        self.font_style: str = "roman"
 
-        self.lineHeight: int = self.__getFont().metrics("linespace") * 1.25
-        self.spaceWidth: int = self.__getFont().measure(" ")
+        self.line_height: int = self.__getFont().metrics("linespace") * 1.25
+        self.space_width: int = self.__getFont().measure(" ")
 
         self.__prepareLayout()
 
@@ -31,37 +31,37 @@ class Layout:
             if isinstance(token, Text):
                 self.__prepareLine(token)
             elif token.tag == "i":
-                self.fontStyle = "italic"
+                self.font_style = "italic"
             elif token.tag == "/i":
-                self.fontStyle = "roman"
+                self.font_style = "roman"
             elif token.tag == "b":
-                self.fontWeight = "bold"
+                self.font_weight = "bold"
             elif token.tag == "/b":
-                self.fontWeight = "normal"
+                self.font_weight = "normal"
 
-        self.height = self.cursor_y + self.lineHeight
+        self.height = self.cursor_y + self.line_height
 
     def __prepareLine(self, token) -> None:
         for word in token.text.split():
             font = self.__getFont()
 
-            wordWidth = font.measure(word)
+            word_width = font.measure(word)
 
-            if self.cursor_x + wordWidth > self.canvas.winfo_width() - HORIZONTAL_STEP:
-                self.cursor_y += self.lineHeight
+            if self.cursor_x + word_width > self.canvas.winfo_width() - HORIZONTAL_STEP:
+                self.cursor_y += self.line_height
                 self.cursor_x = HORIZONTAL_STEP
 
-            self.renderList.append((self.cursor_x, self.cursor_y, word, font))
-            self.cursor_x += wordWidth + self.spaceWidth
+            self.render_list.append((self.cursor_x, self.cursor_y, word, font))
+            self.cursor_x += word_width + self.space_width
 
     def __getFont(self) -> Font:
-        key = (self.fontSize, self.fontWeight, self.fontStyle)
+        key = (self.font_size, self.font_weight, self.font_style)
 
-        if key not in self.fontCache:
-            self.fontCache[key] = Font(
-                size=self.fontSize,
-                weight=self.fontWeight,
-                slant=self.fontStyle,
+        if key not in self.font_cache:
+            self.font_cache[key] = Font(
+                size=self.font_size,
+                weight=self.font_weight,
+                slant=self.font_style,
             )
 
-        return self.fontCache[key]
+        return self.font_cache[key]

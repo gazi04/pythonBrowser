@@ -16,13 +16,13 @@ class Render:
     def draw(self) -> None:
         self.canvas.delete("all")
 
-        if not self.layout.renderList:
+        if not self.layout.render_list:
             return
 
-        canvasHeight = self.canvas.winfo_height()
+        canvas_height = self.canvas.winfo_height()
 
-        for x, y, word, font in self.layout.renderList:
-            if y > self.scroll + canvasHeight:
+        for x, y, word, font in self.layout.render_list:
+            if y > self.scroll + canvas_height:
                 continue
             if y + VERTICAL_STEP < self.scroll:
                 continue
@@ -31,7 +31,7 @@ class Render:
                 x, y - self.scroll, text=word, anchor="nw", font=font
             )
 
-        self.__updateScrollbar(canvasHeight)
+        self.__updateScrollbar(canvas_height)
 
     def setScrollPosition(self, delta: int) -> None:
         """Helper method to adjust the scroll position, clamping it at boundaries."""
@@ -48,8 +48,8 @@ class Render:
         self.layout = Layout(self.tokens, self.canvas)
         self.draw()
 
-    def __updateScrollbar(self, canvasHeight: int) -> None:
-        if self.layout.height <= canvasHeight:
+    def __updateScrollbar(self, canvas_height: int) -> None:
+        if self.layout.height <= canvas_height:
             self.scrollbar.pack_forget()  # If document fits on screen remove scrollbar
         else:
             self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
