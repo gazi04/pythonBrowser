@@ -34,7 +34,11 @@ class Layout:
                 self.__prepareLine(token)
             elif token.tag == "br" or token.tag == "/br":
                 self.__flush()
+                self.cursor_y += VERTICAL_STEP
                 self.cursor_x = HORIZONTAL_STEP
+            elif token.tag == "p" or token.tag == "/p":
+                self.__flush()
+                self.cursor_y += VERTICAL_STEP
             elif token.tag == "i":
                 self.font_style = "italic"
             elif token.tag == "/i":
@@ -51,6 +55,48 @@ class Layout:
                 self.font_size += 4
             elif token.tag == "/big":
                 self.font_size -= 4
+            elif token.tag == "h1":
+                self.__flush()
+                self.font_size += 24
+                self.font_weight = "bold"
+            elif token.tag == "/h1":
+                self.font_size -= 24
+                self.font_weight = "normal"
+            elif token.tag == "h2":
+                self.__flush()
+                self.font_size += 20
+                self.font_weight = "bold"
+            elif token.tag == "/h2":
+                self.font_size -= 20
+                self.font_weight = "normal"
+            elif token.tag == "h3":
+                self.__flush()
+                self.font_size += 18
+                self.font_weight = "bold"
+            elif token.tag == "/h3":
+                self.font_size -= 18
+                self.font_weight = "normal"
+            elif token.tag == "h4":
+                self.__flush()
+                self.font_size += 16
+                self.font_weight = "bold"
+            elif token.tag == "/h4":
+                self.font_size -= 16
+                self.font_weight = "normal"
+            elif token.tag == "h5":
+                self.__flush()
+                self.font_size += 14
+                self.font_weight = "bold"
+            elif token.tag == "/h5":
+                self.font_size -= 14
+                self.font_weight = "normal"
+            elif token.tag == "h6":
+                self.__flush()
+                self.font_size += 12
+                self.font_weight = "bold"
+            elif token.tag == "/h6":
+                self.font_size -= 12
+                self.font_weight = "normal"
 
         self.height = self.cursor_y + self.line_height
 
