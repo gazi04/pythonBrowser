@@ -27,10 +27,10 @@ class Layout:
         self.line_buffer: list[int, str, Font] = []
 
         self.tag_handlers = {
-            "br": lambda: self.__breakLine,
-            "/br": lambda: self.__breakLine,
-            "p": lambda: self.__paragraphBreak,
-            "/p": lambda: self.__paragraphBreak,
+            "br": lambda: self.__breakLine(),
+            "/br": lambda: self.__breakLine(),
+            "p": lambda: self.__paragraphBreak(),
+            "/p": lambda: self.__paragraphBreak(),
             "i": lambda: self.__setFontStyle("italic"),
             "/i": lambda: self.__setFontStyle("roman"),
             "b": lambda: self.__setFontWeight("bold"),
