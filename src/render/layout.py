@@ -25,6 +25,7 @@ class Layout:
         self.space_width: int = self.__getFont().measure(" ")
 
         self.line_buffer: list[int, str, Font] = []
+        self.baseline_offset: int = 0
 
         self.tag_handlers = {
             "br": lambda: self.__breakLine(),
@@ -51,6 +52,10 @@ class Layout:
             "/h5": lambda: self.__resetHeading(14),
             "h6": lambda: self.__setHeading(12),
             "/h6": lambda: self.__resetHeading(12),
+            "sup": lambda: self.__setFontSize(-2, -5),
+            "/sup": lambda: self.__setFontSize(2, 0),
+            "sub": lambda: self.__setFontSize(-2, 5),
+            "/sub": lambda: self.__setFontSize(2, 0),
         }
 
         self.__prepareLayout()
@@ -74,7 +79,7 @@ class Layout:
                 self.__flush()
                 self.cursor_x = HORIZONTAL_STEP
 
-            self.line_buffer.append((self.cursor_x, word, font))
+            self.line_buffer.append((self.cursor_x, word, font, self.baseline_offset))
             self.cursor_x += word_width + self.space_width
 
     def __getFont(self) -> Font:
@@ -91,13 +96,13 @@ class Layout:
 
     def __flush(self) -> None:
         if not self.line_buffer: return
-        metrics = [font.metrics() for x, word, font in self.line_buffer]
+        metrics = [font.metrics() for x, word, font, offset in self.line_buffer]
         max_ascent = max([metric["ascent"] for metric in metrics])
 
         baseline = self.cursor_y + 1.25 * max_ascent
 
-        for x, word, font in self.line_buffer:
-            y = baseline - font.metrics("ascent")
+        for x, word, font, offset in self.line_buffer:
+            y = baseline - font.metrics("ascent") + offset
             self.render_list.append((x, y, word, font))
 
         max_descent = max([metric["descent"] for metric in metrics])
@@ -105,8 +110,13 @@ class Layout:
         self.cursor_x = HORIZONTAL_STEP
         self.line_buffer = []
 
-    def __setFontSize(self, size: int) -> None:
-        self.font_size += size
+    def __setFontSize(self, size_change: int, offset: int = 0) -> None:
+        self.font_size += size_change
+        self.baseline_offset = offset
+        
+        font = self.__getFont()
+        self.line_height = font.metrics("linespace") * 1.25
+        self.space_width = font.measure(" ")
 
     def __setFontWeight(self, weight: str) -> None:
         self.font_weight = weight
@@ -128,6 +138,6 @@ class Layout:
         self.__setFontSize(size)
         self.__setFontWeight("bold")
 
-    def __resetHeading(self, size: int):
+    def __resetHeading(self, size: int) -> None:
         self.__setFontSize(-size)
         self.__setFontWeight("normal")
