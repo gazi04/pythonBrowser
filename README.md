@@ -1,4 +1,4 @@
-# PyBrowser
+# 🐍 PyBrowser
 
 A simple web browser implementation written in Python using Tkinter for the GUI and socket programming for HTTP requests.
 
@@ -6,7 +6,7 @@ A simple web browser implementation written in Python using Tkinter for the GUI 
 
 PyBrowser is a minimal web browser that demonstrates the core concepts of web browsing including HTTP requests, HTML parsing, and text rendering. It provides a basic GUI interface for viewing web content with scrolling capabilities.
 
-## Features
+## ✨ Features
 
 - **HTTP/HTTPS Support**: Makes HTTP requests to web servers with support for redirects
 - **HTML Parsing**: Parses HTML content and builds a document tree structure
@@ -16,7 +16,7 @@ PyBrowser is a minimal web browser that demonstrates the core concepts of web br
 - **Data Protocol Support**: Basic support for `data://` URLs
 - **Scrollable Content**: Mouse wheel and keyboard scrolling support
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 src/
@@ -40,7 +40,7 @@ enums/
 └── ports.py            # Standard port definitions
 ```
 
-## Core Components
+## 🧩 Core Components
 
 ### 1. Network Layer (`src/network/`)
 
@@ -100,7 +100,7 @@ browser = Browser()
 browser.load(response.tokenize())
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 The browser behavior can be customized through `src/config.py`:
 
@@ -109,7 +109,7 @@ The browser behavior can be customized through `src/config.py`:
 - `VERTICAL_STEP`: Line height and vertical margins
 - `SCROLL_STEP`: Mouse wheel and keyboard scroll distance
 
-## Supported HTML Features
+## 🌐 Supported HTML Features
 
 The browser supports basic HTML formatting:
 
@@ -118,7 +118,7 @@ The browser supports basic HTML formatting:
 - **Text size**: `<big>` and `<small>` tags
 - **Line breaks**: `<br>` and paragraph breaks `<p>`
 
-## Technical Details
+## 💻 Technical Details
 
 ### HTTP Implementation
 - Uses raw socket programming for HTTP requests
@@ -138,13 +138,13 @@ The browser supports basic HTML formatting:
 - Font caching for performance
 - Scrollable viewport with mouse wheel support
 
-## Dependencies
+## 💉 Dependencies
 
 - Python 3.7+
 - Tkinter (usually included with Python)
 - Standard library modules: `socket`, `ssl`, `gzip`, `io`, `os`
 
-## Limitations
+## ❌ Limitations
 
 - No CSS support
 - No JavaScript execution
@@ -153,11 +153,3 @@ The browser supports basic HTML formatting:
 - No form handling
 - No cookies or session management
 - Limited error handling
-
-## Development
-
-This is an educational project demonstrating web browser fundamentals. The code is structured to be easily understandable and extensible for learning purposes.
-
-## License
-
-This project is for educational purposes. Please check the license terms if you plan to use or modify this code.
