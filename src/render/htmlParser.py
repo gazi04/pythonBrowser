@@ -11,17 +11,13 @@ class HtmlParser:
         inTag: bool = False
 
         for character in self.body:
-            print("----------------------------------")
-            print(f"list={self.unfinished}")
             if character == "<":
                 inTag = True
                 if buffer:
-                    print(f"Text={buffer}")
                     self.add_text(buffer)
                 buffer = ""
             elif character == ">":
                 inTag = False
-                print(f"Tag={buffer}")
                 self.add_tag(buffer)
                 buffer = ""
             else:
