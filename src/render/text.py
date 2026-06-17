@@ -1,5 +1,8 @@
+from typing import Optional
+
+
 class Text:
-    def __init__(self, text: str, parent) -> None:
+    def __init__(self, text: str, parent: Optional[str] = None) -> None:
         self.text: str = text
         self.parent = parent
         self.children: list = []
