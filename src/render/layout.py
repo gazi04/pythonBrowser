@@ -95,7 +95,8 @@ class Layout:
         return self.font_cache[key]
 
     def __flush(self) -> None:
-        if not self.line_buffer: return
+        if not self.line_buffer:
+            return
         metrics = [font.metrics() for x, word, font, offset in self.line_buffer]
         max_ascent = max([metric["ascent"] for metric in metrics])
 
@@ -113,7 +114,7 @@ class Layout:
     def __setFontSize(self, size_change: int, offset: int = 0) -> None:
         self.font_size += size_change
         self.baseline_offset = offset
-        
+
         font = self.__getFont()
         self.line_height = font.metrics("linespace") * 1.25
         self.space_width = font.measure(" ")

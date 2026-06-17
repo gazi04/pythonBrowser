@@ -4,6 +4,7 @@ import tkinter as tk
 from src.render.render import Render
 from src.config import TITLE, SCROLL_STEP
 
+
 class Browser:
     def __init__(self) -> None:
         self.window = Tk()
@@ -42,11 +43,7 @@ class Browser:
 
     def load(self, tokens: str) -> None:
         self.window.update()
-        self.render = Render(
-            self.canvas,
-            self.scrollbar,
-            tokens
-        )
+        self.render = Render(self.canvas, self.scrollbar, tokens)
         self.render.draw()
         self.window.mainloop()
 
@@ -58,10 +55,10 @@ class Browser:
     def onResize(self, event) -> None:
         # The 'render' object is initialized in the `load()` method, not the constructor.
         # However, the `onResize` function can be triggered during initialization before the `load()` method is called.
-        # The 'if' condition prevents the program from crashing by checking if the 'render' object exists before attempting to resize it.      
-        if hasattr(self, 'render'):
+        # The 'if' condition prevents the program from crashing by checking if the 'render' object exists before attempting to resize it.
+        if hasattr(self, "render"):
             self.render.resize()
-        
+
     def __scrollDown(self, event) -> None:
         self.render.setScrollPosition(SCROLL_STEP)
 

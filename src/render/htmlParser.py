@@ -1,6 +1,7 @@
 from src.render.tag import Tag
 from src.render.text import Text
 
+
 class HtmlParser:
     def __init__(self, body: str) -> None:
         self.body: str = body
@@ -29,25 +30,28 @@ class HtmlParser:
         return self.finish()
 
     def add_text(self, text: str) -> None:
-        if text.isspace() or not text: return
+        if text.isspace() or not text:
+            return
 
         parent = self.unfinished[-1]
         node = Text(text, parent)
         parent.children.append(node)
 
     def add_tag(self, tag: str) -> None:
-        if tag.startswith("!"): return
+        if tag.startswith("!"):
+            return
 
-        if tag.startswith('/'):
-            if len(self.unfinished) == 1: return
+        if tag.startswith("/"):
+            if len(self.unfinished) == 1:
+                return
             node = self.unfinished.pop()
-            parent =  self.unfinished[-1]
+            parent = self.unfinished[-1]
             parent.children.append(node)
         else:
             parent = self.unfinished[-1] if self.unfinished else None
             node = Tag(tag, parent)
             self.unfinished.append(node)
-            if parent: 
+            if parent:
                 parent.children.append(node)
 
     def finish(self) -> None:

@@ -1,8 +1,8 @@
-import socket
 import ssl
 
 from enums.ports import Port
 from src.network.httpResponse import HttpResponse
+from socket import AF_INET, IPPROTO_TCP, SOCK_STREAM, socket
 
 
 class URL:
@@ -64,7 +64,7 @@ class URL:
         response = self.socket.makefile(mode="rb", encoding="utf8", newline="\r\n")
         response = HttpResponse(response)
 
-        return response.getHtmlContent()
+        return response.html_content
 
     def showContentWithoutHtml(self, html_content: str) -> None:
         """Print the html content of a response without the html tags"""
@@ -87,8 +87,8 @@ class URL:
         print(self.request())
 
     def openConnection(self) -> socket:
-        server = socket.socket(
-            family=socket.AF_INET, type=socket.SOCK_STREAM, proto=socket.IPPROTO_TCP
+        server = socket(
+            family=AF_INET, type=SOCK_STREAM, proto=IPPROTO_TCP
         )
         server.connect((self.host, self.port))
 
