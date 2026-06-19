@@ -2,9 +2,6 @@ import gzip
 import io
 
 from enums.httpStatus import HttpStatus
-from src.render.element import Element
-from src.render.text import Text
-
 
 class HttpResponse:
     def __init__(self, raw_response: io.BufferedReader):
@@ -52,29 +49,6 @@ class HttpResponse:
             headers[header.casefold()] = value.strip()
 
         return headers
-
-    def tokenize(self) -> list:
-        out: list = []
-        buffer: str = ""
-        inTag: bool = False
-
-        for character in self.html_content:
-            if character == "<":
-                inTag = True
-                if buffer:
-                    out.append(Text(buffer))
-                buffer = ""
-            elif character == ">":
-                inTag = False
-                out.append(Element(buffer))
-                buffer = ""
-            else:
-                buffer += character
-
-        if not inTag and buffer:
-            out.append(Text(buffer))
-
-        return out
 
     def showContentWithoutHtml(self) -> str:
         """Print the html content of a response without the html tags"""
