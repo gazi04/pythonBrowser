@@ -2,7 +2,7 @@ import gzip
 import io
 
 from enums.httpStatus import HttpStatus
-from src.render.tag import Tag
+from src.render.element import Element
 from src.render.text import Text
 
 
@@ -66,7 +66,7 @@ class HttpResponse:
                 buffer = ""
             elif character == ">":
                 inTag = False
-                out.append(Tag(buffer))
+                out.append(Element(buffer))
                 buffer = ""
             else:
                 buffer += character
