@@ -10,4 +10,10 @@ class Element:
 
 
     def __repr__(self) -> str:
-        return "<" + self.tag + ">"
+        return "<" + self.tag +  self.__print_attributes() + ">"
+
+    def __print_attributes(self) -> str:
+        att = []
+        for k,v in self.attributes.items():
+            att.append(f'{k}="{v}"')
+        return ' ' + ' '.join(att) if att else ""
