@@ -1,12 +1,14 @@
 from tkinter import Canvas
 from tkinter.font import Font
+from typing import List, Union
 
+from src.render.element import Element
 from src.render.text import Text
 from src.config import HORIZONTAL_STEP, VERTICAL_STEP
 
 
 class Layout:
-    def __init__(self, tokens: str, canvas: Canvas) -> None:
+    def __init__(self, tokens: Union[Text, Element], canvas: Canvas) -> None:
         self.tokens = tokens
         self.canvas = canvas
 
@@ -24,7 +26,7 @@ class Layout:
         self.line_height: int = self.__getFont().metrics("linespace") * 1.25
         self.space_width: int = self.__getFont().measure(" ")
 
-        self.line_buffer: list[int, str, Font] = []
+        self.line_buffer: List[int, str, Font] = []
         self.baseline_offset: int = 0
 
         self.tag_handlers = {
@@ -58,18 +60,19 @@ class Layout:
             "/sub": lambda: self.__setFontSize(2, 0),
         }
 
-        self.__prepareLayout()
+        self.recurse(tokens)
+        self.__flush()
 
     def __prepareLayout(self) -> None:
         for token in self.tokens:
             if isinstance(token, Text):
-                self.__prepareLine(token)
+                self.word(token)
             elif token.tag in self.tag_handlers:
                 self.tag_handlers[token.tag]()
 
         self.height = self.cursor_y + self.line_height
 
-    def __prepareLine(self, token) -> None:
+    def word(self, token) -> None:
         for word in token.text.split():
             font = self.__getFont()
 
@@ -142,3 +145,20 @@ class Layout:
     def __resetHeading(self, size: int) -> None:
         self.__setFontSize(-size)
         self.__setFontWeight("normal")
+
+    def recurse(self, tree: Union[Element, Text]):
+        if isinstance(tree, Text):
+            self.word(tree)
+        else:
+            if tree.tag in {'head', 'script', 'style', 'noscript'}:
+                return
+
+            if tree.tag in self.tag_handlers:
+                self.tag_handlers[tree.tag]()
+            for child in tree.children:
+                self.recurse(child)
+            close_tag = "/" + tree.tag
+            if close_tag in self.tag_handlers:
+                self.tag_handlers[close_tag]()
+
+        self.height = self.cursor_y + self.line_height
